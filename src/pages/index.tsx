@@ -1,17 +1,14 @@
-import type { NextPage } from "next"
+import type { NextPage, GetStaticProps } from "next"
+import React from "react"
 import Head from "next/head"
+import { getCountries } from "hooks/useCountries"
+import { Country } from "types/country"
 
-import { useQuery } from "react-query"
-import axios from "axios"
-
-const getPosts = async () => {
-  const { data } = await axios.get("https://restcountries.com/v3.1/all")
-  return data
+type Props = {
+  countries?: Country[]
 }
 
-const Home: NextPage = () => {
-  const { data } = useQuery(["posts"], getPosts)
-
+const Home: NextPage = ({ countries }: Props) => {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center py-2">
       <Head>
@@ -19,7 +16,9 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex w-full flex-1 flex-col items-center justify-center px-20 text-center">
-        sa
+        {countries?.map((country: Country, index: number) => {
+          return <div key={index}>{country.name.common}</div>
+        })}
       </main>
 
       <footer className="flex h-24 w-full items-center justify-center border-t">
@@ -34,6 +33,13 @@ const Home: NextPage = () => {
       </footer>
     </div>
   )
+}
+
+export const getStaticProps: GetStaticProps = async () => {
+  const countries: Country[] = await getCountries()
+  countries.sort((a, b) => a.name.common.localeCompare(b.name.common))
+
+  return { props: { countries } }
 }
 
 export default Home
