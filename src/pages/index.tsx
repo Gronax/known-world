@@ -1,24 +1,21 @@
-import type { NextPage, GetStaticProps } from "next"
+import type { NextPage } from "next"
 import React from "react"
-import Head from "next/head"
-import { getCountries } from "hooks/useCountries"
+import CountryItem from "components/CountryItem"
+import useCountries from "hooks/useCountries"
 import { Country } from "types/country"
 
-type Props = {
-  countries?: Country[]
-}
+const Home: NextPage = () => {
+  const { isSuccess, data, isLoading, isError } = useCountries()
+  const countries = data?.sort((a, b) => a.name.common.localeCompare(b.name.common))
 
-const Home: NextPage = ({ countries }: Props) => {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center py-2">
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
       <main className="flex w-full flex-1 flex-col items-center justify-center px-20 text-center">
-        {countries?.map((country: Country, index: number) => {
-          return <div key={index}>{country.name.common}</div>
-        })}
+        <ul>
+          {countries?.map((country: Country, index: number) => (
+            <CountryItem key={index} country={country} />
+          ))}
+        </ul>
       </main>
 
       <footer className="flex h-24 w-full items-center justify-center border-t">
@@ -33,13 +30,6 @@ const Home: NextPage = ({ countries }: Props) => {
       </footer>
     </div>
   )
-}
-
-export const getStaticProps: GetStaticProps = async () => {
-  const countries: Country[] = await getCountries()
-  countries.sort((a, b) => a.name.common.localeCompare(b.name.common))
-
-  return { props: { countries } }
 }
 
 export default Home
